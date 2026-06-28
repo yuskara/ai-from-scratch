@@ -1,5 +1,29 @@
-from colorama import Fore, Style, init
-from ollama_client import chat
+import importlib
+
+
+class _FallbackFore:
+    GREEN = ""
+    CYAN = ""
+    RED = ""
+
+
+try:
+    colorama = importlib.import_module("colorama")
+    Fore = colorama.Fore
+    init = colorama.init
+except ModuleNotFoundError:
+    Fore = _FallbackFore
+
+    def init(*args, **kwargs):
+        return None
+
+try:
+    from ollama_client import chat
+except ModuleNotFoundError as exc:
+    if exc.name == "requests":
+        print("Missing dependency 'requests'. Install it with: python -m pip install -r requirements.txt")
+        raise SystemExit(1)
+    raise
 
 init(autoreset=True)
 
